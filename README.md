@@ -8,17 +8,17 @@
 README Craft gives Codex a repeatable workflow for turning repository evidence into useful documentation. It checks the whole reading experience—not only badges or setup—and covers value, first use, normal use, contributor activation, trust, support, stewardship, and licensing without inventing unsupported claims.
 
 ```sh
-npx readme-craft
-# or
-pnpx readme-craft
-```
-
-Until the first npm release is published, run the installer directly from GitHub:
-
-```sh
 npx --yes --package=github:montasim/readme-craft readme-craft
 # or
 pnpx github:montasim/readme-craft
+```
+
+After the first npm release is published, the commands shorten to:
+
+```sh
+npx readme-craft
+# or
+pnpx readme-craft
 ```
 
 ## Why README Craft?
@@ -40,12 +40,14 @@ Its bundled Ramadan Clock reference acts as a concrete quality benchmark. Projec
 - Node.js 18 or newer for the installer
 - Codex with filesystem-backed skills support
 
-Run either package executor:
+Run either package executor against the GitHub release:
 
 ```sh
-npx readme-craft
-pnpx readme-craft
+npx --yes --package=github:montasim/readme-craft readme-craft
+pnpx github:montasim/readme-craft
 ```
+
+Once the npm package is published, `npx readme-craft` and `pnpx readme-craft` provide the shorter equivalents.
 
 By default, the installer writes to:
 

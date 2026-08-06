@@ -1,0 +1,40 @@
+{
+  "name": "readme-craft",
+  "version": "0.1.0",
+  "description": "Install the README Craft skill for Codex with npx or pnpx.",
+  "type": "module",
+  "bin": {
+    "readme-craft": "bin/readme-craft.js"
+  },
+  "files": [
+    "bin/",
+    "skills/"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "pack:check": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "codex",
+    "agent-skill",
+    "readme",
+    "documentation",
+    "npx"
+  ],
+  "author": "Montasim",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/montasim/readme-craft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/montasim/readme-craft/issues"
+  },
+  "homepage": "https://github.com/montasim/readme-craft#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}

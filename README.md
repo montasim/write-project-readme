@@ -3,6 +3,7 @@
 > Install an evidence-driven Codex skill for creating, auditing, and improving complete project READMEs.
 
 [![CI](https://github.com/montasim/readme-craft/actions/workflows/ci.yml/badge.svg)](https://github.com/montasim/readme-craft/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/montasim/readme-craft)](https://github.com/montasim/readme-craft/releases/latest)
 
 README Craft gives Codex a repeatable workflow for turning repository evidence into useful documentation. It checks the whole reading experience—not only badges or setup—and covers value, first use, normal use, contributor activation, trust, support, stewardship, and licensing without inventing unsupported claims.
 
@@ -152,18 +153,27 @@ This validates the skill name, frontmatter, and folder structure. The command de
 
 ## Release and distribution
 
-GitHub installs work from the repository once a release commit is available. npm distribution additionally requires maintainer authentication:
+GitHub installs work from the latest repository commit. Use the tagged form below when reproducibility matters.
+
+To pin the GitHub installer to the initial release:
+
+```sh
+npx --yes --package=github:montasim/readme-craft#v0.1.0 readme-craft
+pnpx github:montasim/readme-craft#v0.1.0
+```
+
+npm distribution additionally requires maintainer authentication:
 
 ```sh
 npm login
 npm publish
 ```
 
-Before publishing, increment the package version, run the test and package checks, review the archive contents, and tag the matching commit. The unscoped npm name `readme-craft` was available when this repository was prepared, but availability is not reserved until the first successful publish.
+Before the first publish, run the test and package checks and review the archive contents. For later releases, increment the package version and tag the matching commit. The unscoped npm name `readme-craft` was available when this repository was prepared, but availability is not reserved until the first successful publish.
 
 ## Status and limitations
 
-- The project is at version `0.1.0` and has not yet made its first npm release.
+- GitHub release `v0.1.0` is available; the first npm release is pending maintainer authentication.
 - The installer targets the Codex filesystem convention; it does not configure unrelated agent products.
 - Installation tests currently run locally and in the configured Linux CI environment. Other Node.js 18+ platforms are expected to work but are not yet claimed as verified.
 - The skill can only document facts available from repository evidence and accessible verification; it must qualify or omit unknown information.

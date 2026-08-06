@@ -15,7 +15,7 @@ pnpx readme-craft
 Until the first npm release is published, run the installer directly from GitHub:
 
 ```sh
-npx github:montasim/readme-craft
+npx --yes --package=github:montasim/readme-craft readme-craft
 # or
 pnpx github:montasim/readme-craft
 ```

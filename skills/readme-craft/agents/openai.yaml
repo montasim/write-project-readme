@@ -1,4 +1,0 @@
-interface:
-  display_name: "README Craft"
-  short_description: "Create complete, evidence-based project READMEs"
-  default_prompt: "Use $readme-craft to bring this complete README to the canonical quality standard using verified repository evidence."

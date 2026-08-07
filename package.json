@@ -1,10 +1,10 @@
 {
-  "name": "readme-craft",
-  "version": "0.1.0",
-  "description": "Install the README Craft skill for Codex with npx or pnpx.",
+  "name": "write-project-readme",
+  "version": "0.2.0",
+  "description": "Install a Codex skill that writes evidence-based project README.md files.",
   "type": "module",
   "bin": {
-    "readme-craft": "bin/readme-craft.js"
+    "write-project-readme": "bin/write-project-readme.js"
   },
   "files": [
     "bin/",
@@ -21,19 +21,22 @@
     "codex",
     "agent-skill",
     "readme",
+    "readme-generator",
+    "project-readme",
     "documentation",
     "npx"
   ],
   "author": "Montasim",
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "funding": "https://www.supportkori.com/montasim",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/montasim/readme-craft.git"
+    "url": "git+https://github.com/montasim/write-project-readme.git"
   },
   "bugs": {
-    "url": "https://github.com/montasim/readme-craft/issues"
+    "url": "https://github.com/montasim/write-project-readme/issues"
   },
-  "homepage": "https://github.com/montasim/readme-craft#readme",
+  "homepage": "https://github.com/montasim/write-project-readme#readme",
   "publishConfig": {
     "access": "public"
   }

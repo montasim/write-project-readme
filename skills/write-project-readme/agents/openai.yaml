@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Project README"
+  short_description: "Write an evidence-based project README.md"
+  default_prompt: "Use $write-project-readme to create or regenerate this project's root README.md from verified repository evidence."

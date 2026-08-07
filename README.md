@@ -9,7 +9,7 @@
 
 Write Project README gives coding agents a project-type-aware workflow for producing a complete README without turning guessed metadata or publisher defaults into project facts. The same `SKILL.md`, quality references, and deterministic checker are installed for both supported hosts. The workflow inspects manifests, code, public interfaces, tests, CI, release and deployment files, and repository-native governance metadata; then it writes one artifact only: the target repository's root `README.md`.
 
-> **Distribution status:** `write-project-readme` is not published to npm yet. After its first publication, `@latest` will track the current stable release. Until then, use the GitHub source fallback in the installation section.
+> **Distribution:** `write-project-readme@latest` tracks the current stable npm release. Use the GitHub source fallback only when you intentionally want the repository's moving default branch.
 
 ```sh
 npx --yes --package=write-project-readme@latest write-project-readme --target codex
@@ -57,7 +57,7 @@ The local installer supports Codex and Claude Code. Claude.ai and Anthropic API 
 - Node.js 18 or newer for the dependency-free installer and checker
 - Codex, Claude Code, or both, with filesystem-backed skill support
 
-After the first npm publication, install the current stable release for the host you want to use:
+Install the current stable release for the host you want to use:
 
 ```sh
 npx --yes --package=write-project-readme@latest write-project-readme --target codex
@@ -80,7 +80,7 @@ Restart each selected host or begin a new session after installation so its skil
 
 [`latest`](https://docs.npmjs.com/cli/dist-tag/) is npm's stable distribution tag and is updated by a normal stable publication. It avoids hard-coding a release number while still resolving a published package version. It applies to registry package names, not GitHub repository specifications.
 
-Until the first npm publication, install the current default branch directly from GitHub:
+To install the current default branch directly from GitHub instead of a published release:
 
 ```sh
 npx --yes --package=github:montasim/write-project-readme write-project-readme --target codex
@@ -88,7 +88,7 @@ npx --yes --package=github:montasim/write-project-readme write-project-readme --
 npx --yes --package=github:montasim/write-project-readme write-project-readme --target both
 ```
 
-The GitHub form follows the repository's default branch. Prefer `@latest` after registry publication because it resolves an immutable published package instead of a moving source branch.
+The GitHub form follows the repository's default branch. Prefer `@latest` for normal installation because it resolves an immutable published package instead of a moving source branch.
 
 ### Destinations and scope
 
@@ -330,8 +330,8 @@ GitHub Actions runs the npm test and package checks on pushes to `main` and pull
 
 ## Status and limitations
 
-- Version 0.3.0 is being prepared as the first installer release supporting both Codex and Claude Code.
-- The unscoped npm package is not published yet. After its first stable publication, `write-project-readme@latest` will resolve the current stable release; until then, use the GitHub default-branch fallback.
+- Version 0.3.0 is the first installer release supporting both Codex and Claude Code.
+- The npm `latest` channel resolves the current stable release; the GitHub default-branch form is a source-based fallback.
 - The installer configures local filesystem skill roots for Codex and Claude Code. Claude.ai and Anthropic API use require separate skill uploads.
 - Natural-language discovery on both hosts comes from the shared `SKILL.md` description; `$write-project-readme` and `/write-project-readme` are the deterministic explicit forms.
 - Automatic detection is a destination-selection heuristic, not caller identity. Machines with zero or two detected hosts require an explicit target.

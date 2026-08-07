@@ -1,23 +1,26 @@
 # Write Project README
 
-> Install a self-contained Codex skill that creates or regenerates a software project's root `README.md` from verified repository evidence.
+> Install one portable skill for Codex, Claude Code, or both that creates or regenerates a software project's root `README.md` from verified repository evidence.
 
 [![CI](https://github.com/montasim/write-project-readme/actions/workflows/ci.yml/badge.svg)](https://github.com/montasim/write-project-readme/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/v/release/montasim/write-project-readme)](https://github.com/montasim/write-project-readme/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Support on SupportKori](https://img.shields.io/badge/Support_on-SupportKori-00B8B5)](https://www.supportkori.com/montasim)
 
-Write Project README gives Codex a project-type-aware workflow for producing a complete README without turning guessed metadata or publisher defaults into project facts. It inspects manifests, code, public interfaces, tests, CI, release and deployment files, and repository-native governance metadata; then it writes one artifact only: the target repository's root `README.md`.
+Write Project README gives coding agents a project-type-aware workflow for producing a complete README without turning guessed metadata or publisher defaults into project facts. The same `SKILL.md`, quality references, and deterministic checker are installed for both supported hosts. The workflow inspects manifests, code, public interfaces, tests, CI, release and deployment files, and repository-native governance metadata; then it writes one artifact only: the target repository's root `README.md`.
+
+> **Release preparation:** This document describes planned v0.3.0 behavior. The pinned `#v0.3.0` commands become usable when that GitHub tag is published.
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex
 ```
 
-Restart Codex, then invoke the installed skill:
+Restart the selected host after installation, then invoke the skill with that host's syntax:
 
-```text
-Use $write-project-readme to create or regenerate this project's root README.md from verified repository evidence.
-```
+| Host | Invocation |
+| --- | --- |
+| Codex | `$write-project-readme` |
+| Claude Code | `/write-project-readme` |
 
 ## Why this skill exists
 
@@ -45,95 +48,159 @@ The skill uses a sanitized Ramadan Clock README as a mandatory depth benchmark. 
 | Mark relevant unresolved optional fields visibly | Guess author, funding, support, demo, compatibility, or license values |
 | Run deterministic Markdown hygiene checks | Claim that syntax checks prove factual accuracy |
 
+The local installer supports Codex and Claude Code. Claude.ai and Anthropic API integrations do not read a local Claude Code skills directory; those surfaces require separate skill uploads.
+
 ## Install
 
 ### Requirements
 
 - Node.js 18 or newer for the dependency-free installer and checker
-- Codex with filesystem-backed skill support
+- Codex, Claude Code, or both, with filesystem-backed skill support
 
-Install the pinned GitHub release:
-
-```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme
-```
-
-The equivalent `pnpx` command is:
+Install the pinned GitHub release for the host you want to use:
 
 ```sh
-pnpx github:montasim/write-project-readme#v0.2.0
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target claude
 ```
 
-By default, the installer writes to:
+Install for both local hosts in one transaction:
 
-- `$CODEX_HOME/skills/write-project-readme` when `CODEX_HOME` is set;
-- `~/.codex/skills/write-project-readme` otherwise.
+```sh
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both
+```
 
-Restart Codex or begin a new session after installation so the skill catalog refreshes.
+The equivalent `pnpx` form accepts the same installer options:
+
+```sh
+pnpx github:montasim/write-project-readme#v0.3.0 --target codex
+```
+
+Restart each selected host or begin a new session after installation so its skill catalog refreshes.
 
 The unscoped npm package is not part of the currently verified distribution. After it is published, the shorter commands will be `npx write-project-readme` and `pnpx write-project-readme`; until then, use the pinned GitHub form above.
 
+### Destinations and scope
+
+`--scope` accepts `user` or `project` and defaults to `user`. The installer appends `write-project-readme` to the selected skills root:
+
+| Target | Scope | Skills root | Installed directory |
+| --- | --- | --- | --- |
+| Codex | `user` | `~/.agents/skills` | `~/.agents/skills/write-project-readme` |
+| Codex | `project` | `<repo>/.agents/skills` | `<repo>/.agents/skills/write-project-readme` |
+| Claude Code | `user` | `${CLAUDE_CONFIG_DIR:-~/.claude}/skills` | `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/write-project-readme` |
+| Claude Code | `project` | `<repo>/.claude/skills` | `<repo>/.claude/skills/write-project-readme` |
+
+For project scope, `<repo>` is the Git worktree root when available and the current directory otherwise. For example:
+
+```sh
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --scope project
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both --scope project
+```
+
+### Automatic target detection
+
+`--target` accepts `auto`, `codex`, `claude`, or `both` and defaults to `auto`. With no explicit target, the installer proceeds only when it detects exactly one supported host:
+
+```sh
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme
+```
+
+Detection checks environment variables, known agent directories, and the executable names on `PATH`. It never runs an agent command. In particular:
+
+- Codex signals include `CODEX_HOME`, `.agents` or `.codex` directories, and a `codex` executable.
+- Claude Code signals include `CLAUDE_CONFIG_DIR`, `.claude` directories, and a `claude` executable.
+- Exactly one detected host selects that target.
+- No detected hosts or both detected hosts cause a refusal with instructions to choose `--target codex`, `--target claude`, or `--target both`.
+- An explicit `--target` always wins over detection.
+
+Detection chooses an installation destination; it is not caller identity, authentication, or proof that the command was launched from a particular agent. Use an explicit target in automation and whenever the intended destination matters.
+
 ### Preview or customize the destination
 
-Preview without writing:
+Preview the full plan without writing:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --dry-run
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both --dry-run
 ```
 
-Install beneath a custom skills directory:
+`--path` selects one exact custom skills root; the installer still creates its `write-project-readme` child:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --path /absolute/path/to/skills
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target claude --path /absolute/path/to/skills
 ```
+
+Because a custom path already fixes one root, `--path` is incompatible with `--target both` and with any explicit `--scope`, including an explicit `--scope user`.
 
 ### Update an existing installation
 
-The installer preserves an existing `write-project-readme` directory unless replacement is explicit:
+The installer preserves every existing `write-project-readme` destination unless replacement is explicit:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --force
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --force
 ```
 
-Replacement is staged before the current installation is moved, and the installer attempts to restore the previous copy if the transaction fails. Symlink and non-directory targets are rejected.
+The packaged skill is staged before the current installation moves. Symlinks and non-directory targets are rejected, as are paths that overlap the packaged source or another selected target.
 
-### Migrate an earlier skill name
+### Migrate legacy installations
 
-Version 0.2.0 recognizes installations named `readme-craft` and `craft-project-readme`. A normal install refuses to proceed while either legacy directory exists, so migration is always explicit:
+Legacy discovery never causes an implicit move or deletion. Recognized legacy installations are changed only with `--migrate`:
+
+- The old skill names `readme-craft` and `craft-project-readme` are recognized beneath the selected current skills root for either host.
+- With a standard Codex destination, migration also recognizes `write-project-readme` and the old names beneath legacy user roots `$CODEX_HOME/skills` and `~/.codex/skills`, or beneath the legacy project root `<repo>/.codex/skills` when project scope is selected.
+- An explicit `--path` is isolated: migration checks only `readme-craft` and `craft-project-readme` beneath that exact custom root and does not scan standard or legacy roots.
+
+A normal install refuses before writing when it finds a recognized legacy installation, even if `--force` is present. Preview migration sources, backups, and destinations first:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --migrate
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --migrate --dry-run
 ```
 
-Preview the sources, backups, and destination first:
+Then migrate:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --migrate --dry-run
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --migrate
 ```
 
-If the new destination and a legacy installation both exist, confirm replacement of the new destination as part of the transaction:
+If a current destination also exists, authorize its replacement as part of the migration:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.2.0 write-project-readme --migrate --force
+npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --force --migrate
 ```
 
-Migration backs up every affected skill directory, installs the renamed skill, and removes the backups only after success. On failure, it attempts to restore all original directories.
+With `--target both --migrate`, one host may migrate a legacy installation while the other receives a fresh install. At least one selected host must have a recognized legacy installation or `--migrate` refuses.
+
+Install and migration operations stage all selected targets and back up every affected directory before publishing. A `both` operation is one logical transaction: if either host fails to install, the installer attempts to remove newly published copies and restore every moved destination and legacy directory across both hosts. If rollback cannot complete, it reports the transaction locations that need manual recovery; successful cleanup removes the temporary backups.
 
 ## Use
 
-From the target project's root, ask Codex:
+After the host refreshes its skill catalog, `SKILL.md`'s description is the shared discovery and trigger contract. In either Codex or Claude Code, a matching natural-language request can activate the skill automatically:
+
+```text
+Create or regenerate this project's root README.md from verified repository evidence.
+```
+
+Installer `--target auto` and skill activation are separate mechanisms: the installer uses local signals only to select one destination, while the host uses the installed skill description to match a request.
+
+Use the host-specific invocation when you want to select the skill deterministically. For Codex:
 
 ```text
 Use $write-project-readme to create or regenerate this project's root README.md from verified repository evidence.
 ```
 
-You can add project-specific direction in the same prompt:
+For Claude Code:
 
 ```text
-Use $write-project-readme to regenerate this project's root README.md. Lead with the CLI workflow, preserve the existing migration warnings, and use only facts verified in this repository.
+/write-project-readme Create or regenerate this project's root README.md from verified repository evidence.
 ```
 
-The skill resolves the Git worktree root when available, otherwise uses the current directory. It reads the existing root README and relevant evidence, classifies the dominant user-facing artifact, builds a verified/inferred/unknown fact inventory, drafts the full reader journey, validates it, and confirms that no other project file changed.
+Add project-specific direction in the same request when useful:
+
+```text
+Lead with the CLI workflow, preserve the existing migration warnings, and use only facts verified in this repository.
+```
+
+Both hosts load the same behavior contract and bundled resources. The skill resolves the Git worktree root when available, otherwise uses the current directory. It reads the existing root README and relevant evidence, classifies the dominant user-facing artifact, builds a verified/inferred/unknown fact inventory, drafts the full reader journey, validates it, and confirms that no other project file changed.
 
 Audit-only requests, a badge-only patch, and non-project README files are intentionally outside the skill's contract.
 
@@ -167,10 +234,14 @@ The skill reports every remaining marker in its final handoff. A document contai
 The bundled checker performs read-only, offline validation of the exact root `README.md`:
 
 ```sh
-node ~/.codex/skills/write-project-readme/scripts/check-readme.mjs .
+# Codex user installation
+node ~/.agents/skills/write-project-readme/scripts/check-readme.mjs .
+
+# Claude Code user installation
+node "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/write-project-readme/scripts/check-readme.mjs" .
 ```
 
-Use the corresponding `$CODEX_HOME` or custom installation path when applicable. Add `--json` for machine-readable diagnostics.
+For project scope, use the corresponding `.agents/skills` or `.claude/skills` path beneath the project root. Use the exact custom root supplied with `--path` when applicable. Add `--json` for machine-readable diagnostics.
 
 It checks:
 
@@ -207,14 +278,18 @@ write-project-readme/
 
 The npm package adds only the dependency-free installer. It performs no network requests, analytics, or telemetry after the package has been retrieved.
 
+`SKILL.md`, the references, and the checker form one portable behavior contract shared by both hosts. `agents/openai.yaml` supplies Codex UI metadata; it is not a second skill definition and is not required for Claude Code behavior.
+
 ## CLI reference
 
 | Option | Behavior |
 | --- | --- |
-| `--path <directory>` | Install beneath a custom skills directory |
-| `--force` | Replace an existing new-name installation; combine with `--migrate` when both new and legacy names exist |
-| `--migrate` | Transactionally replace detected legacy-name installations |
-| `--dry-run` | Report the planned paths and actions without writing |
+| `--target auto|codex|claude|both` | Select the host; defaults to strict `auto` detection |
+| `--scope user|project` | Select a standard user or repository-local root; defaults to `user` |
+| `--path <directory>` | Use one exact custom skills root; incompatible with `both` or an explicit `--scope` |
+| `--force` | Replace an existing current destination; does not authorize legacy migration |
+| `--migrate` | Transactionally move recognized legacy names and Codex legacy-root installations |
+| `--dry-run` | Report all selected targets, paths, backups, and actions without writing |
 | `--help`, `-h` | Show command help |
 | `--version`, `-v` | Print the package version |
 
@@ -232,7 +307,7 @@ npm run pack:check
 
 | Command | Purpose |
 | --- | --- |
-| `npm test` | Run installer, migration, checker, portability, and package-contract tests |
+| `npm test` | Run cross-agent installer, scope, migration, rollback, checker, portability, and package-contract tests |
 | `npm run pack:check` | Preview the exact files included in the npm archive |
 
 When Codex's `skill-creator` utilities are installed, also validate the bundled skill:
@@ -245,17 +320,21 @@ GitHub Actions runs the npm test and package checks on pushes to `main` and pull
 
 ## Status and limitations
 
-- Version 0.2.0 is the first release under the Write Project README name; the earlier `v0.1.0` release remains available under the repository's history.
+- Version 0.3.0 is being prepared as the first installer release supporting both Codex and Claude Code; its pinned commands require the `v0.3.0` GitHub tag to be published.
 - The GitHub release is the verified installation source. Publishing the unscoped npm package still requires maintainer authentication.
-- The installer targets Codex's filesystem-backed skill convention; it does not configure unrelated agent products.
+- The installer configures local filesystem skill roots for Codex and Claude Code. Claude.ai and Anthropic API use require separate skill uploads.
+- Natural-language discovery on both hosts comes from the shared `SKILL.md` description; `$write-project-readme` and `/write-project-readme` are the deterministic explicit forms.
+- Automatic detection is a destination-selection heuristic, not caller identity. Machines with zero or two detected hosts require an explicit target.
+- `CODEX_HOME/skills`, `~/.codex/skills`, and project `.codex/skills` are legacy migration sources, not v0.3.0 Codex destinations.
+- Multi-target installation is transactional with attempted cross-target rollback, but an interrupted or failed rollback can leave reported transaction directories requiring manual recovery.
 - The skill writes only the root project README. It deliberately does not fulfill audit-only or repository-marketing requests.
 - Repository evidence can be incomplete or stale. Blocking unknowns may require maintainer input; relevant non-blocking optional values remain visible as configuration-required markers.
 - Deterministic checks find structural defects, not factual truth, prose quality, accessibility beyond empty image alt text, or remote-link health.
-- External verification depends on the network and permissions available to the running Codex session.
+- External verification depends on the network and permissions available to the running agent session.
 
 ## Support and security
 
-Read [SUPPORT.md](SUPPORT.md) before opening an issue. Report reproducible installer, migration, checker, or skill behavior through [GitHub Issues](https://github.com/montasim/write-project-readme/issues).
+Read [SUPPORT.md](SUPPORT.md) before opening an issue. Report reproducible detection, target, scope, installation, migration, checker, or skill behavior through [GitHub Issues](https://github.com/montasim/write-project-readme/issues). Include the selected host, command options, Node.js version, operating system, expected result, and sanitized actual output.
 
 Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md). Never post tokens, private repository content, secret values, or sensitive filesystem paths in a public issue.
 

@@ -62,11 +62,22 @@ test("package exposes the write-project-readme contract", () => {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
   assert.equal(packageJson.name, "write-project-readme");
-  assert.equal(packageJson.version, "0.2.0");
+  assert.equal(packageJson.version, "0.3.0");
   assert.equal(packageJson.license, "MIT");
+  assert.match(packageJson.description, /Codex/);
+  assert.match(packageJson.description, /Claude Code/);
+  assert.ok(packageJson.keywords.includes("codex"));
+  assert.ok(packageJson.keywords.includes("claude-code"));
   assert.deepEqual(packageJson.bin, {
     "write-project-readme": "bin/write-project-readme.js",
   });
+  if (process.platform !== "win32") {
+    assert.notEqual(
+      lstatSync(join(repositoryRoot, packageJson.bin["write-project-readme"])).mode & 0o111,
+      0,
+      "the packaged CLI must remain executable",
+    );
+  }
   assert.equal(existsSync(skillRoot), true, "renamed skill folder is missing");
   assert.equal(existsSync(join(repositoryRoot, "skills", "readme-craft")), false);
   assert.equal(existsSync(join(repositoryRoot, "skills", "craft-project-readme")), false);

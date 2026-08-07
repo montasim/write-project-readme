@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const packageJsonPath = join(repositoryRoot, "package.json");
+const packageLockPath = join(repositoryRoot, "package-lock.json");
 const skillRoot = join(repositoryRoot, "skills", "write-project-readme");
 const skillFile = join(skillRoot, "SKILL.md");
 const agentMetadataFile = join(skillRoot, "agents", "openai.yaml");
@@ -60,9 +61,12 @@ function portablePath(path) {
 
 test("package exposes the write-project-readme contract", () => {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+  const packageLock = JSON.parse(readFileSync(packageLockPath, "utf8"));
 
   assert.equal(packageJson.name, "write-project-readme");
-  assert.equal(packageJson.version, "0.3.0");
+  assert.match(packageJson.version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/);
+  assert.equal(packageLock.version, packageJson.version);
+  assert.equal(packageLock.packages[""].version, packageJson.version);
   assert.equal(packageJson.license, "MIT");
   assert.match(packageJson.description, /Codex/);
   assert.match(packageJson.description, /Claude Code/);

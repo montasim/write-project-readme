@@ -1,6 +1,6 @@
 ---
 name: write-project-readme
-description: Create or regenerate the root README.md for a software project from verified repository evidence. Use when Codex must write the complete project README for an application, library, package, SDK, CLI, API, service, container, template, monorepo, research or data project, model, AI skill, or hybrid repository. Do not use for audit-only requests, profile or organization READMEs, nested documentation indexes, badge-only edits, community files, marketing assets, or non-project README files.
+description: Create or regenerate the root README.md for a software project from verified repository evidence. Use when an AI coding agent must write the complete project README for an application, library, package, SDK, CLI, API, service, container, template, monorepo, research or data project, model, AI skill, or hybrid repository. Do not use for audit-only requests, profile or organization READMEs, nested documentation indexes, badge-only edits, community files, marketing assets, or non-project README files.
 ---
 
 # Write Project README
@@ -143,11 +143,7 @@ Before finishing:
 2. Confirm all relative targets exist with exact filename case.
 3. Run safe, relevant project checks when practical; do not perform deployments, releases, destructive commands, or external writes merely to verify documentation.
 4. Read the complete draft top to bottom against both bundled references and every applicable P0 gate.
-5. Run the bundled deterministic checker:
-
-```sh
-node <skill-dir>/scripts/check-readme.mjs <project-root>
-```
+5. Resolve the absolute installed skill directory that contains this loaded `SKILL.md`, then run its bundled deterministic checker at `scripts/check-readme.mjs`, passing the absolute project root as the first argument. Use the host agent's skill-resource path resolution; do not assume a host-specific installation directory or execute an unresolved placeholder path.
 
 Use `--json` when machine-readable diagnostics help. Exit code `0` is clean, `1` means validation or configuration-required findings, and `2` means invocation or internal failure. The checker does not prove factual accuracy; resolve its diagnostics and still perform the evidence review.
 

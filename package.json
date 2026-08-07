@@ -1,7 +1,7 @@
 {
   "name": "write-project-readme",
-  "version": "0.2.0",
-  "description": "Install a Codex skill that writes evidence-based project README.md files.",
+  "version": "0.3.0",
+  "description": "Install an evidence-based project README skill for Codex and Claude Code.",
   "type": "module",
   "bin": {
     "write-project-readme": "bin/write-project-readme.js"
@@ -19,7 +19,9 @@
   },
   "keywords": [
     "codex",
+    "claude-code",
     "agent-skill",
+    "ai-agent",
     "readme",
     "readme-generator",
     "project-readme",

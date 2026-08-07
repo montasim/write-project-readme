@@ -5,6 +5,7 @@
 [![CI](https://github.com/montasim/write-project-readme/actions/workflows/ci.yml/badge.svg)](https://github.com/montasim/write-project-readme/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/v/release/montasim/write-project-readme)](https://github.com/montasim/write-project-readme/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Support on SupportKori](https://img.shields.io/badge/Support_on-SupportKori-00B8B5)](https://www.supportkori.com/montasim)
 
 Write Project README gives Codex a project-type-aware workflow for producing a complete README without turning guessed metadata or publisher defaults into project facts. It inspects manifests, code, public interfaces, tests, CI, release and deployment files, and repository-native governance metadata; then it writes one artifact only: the target repository's root `README.md`.
 

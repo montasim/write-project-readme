@@ -18,6 +18,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cli = join(repositoryRoot, "bin", "write-project-readme.js");
 const skillSource = join(repositoryRoot, "skills", "write-project-readme");
 const skillName = "write-project-readme";
+const packageVersion = JSON.parse(readFileSync(join(repositoryRoot, "package.json"), "utf8")).version;
 
 function temporaryRoot() {
   const root = mkdtempSync(join(tmpdir(), "write-project-readme-test-"));
@@ -73,7 +74,7 @@ function assertNoTransactions(...skillsRoots) {
   }
 }
 
-test("prints the v0.3.0 multi-agent help and version", () => {
+test("prints the current multi-agent help and package version", () => {
   const help = run(["--help"]);
   const version = run(["--version"]);
 
@@ -83,7 +84,7 @@ test("prints the v0.3.0 multi-agent help and version", () => {
   assert.match(help.stdout, /--scope <scope>\s+user or project/);
   assert.match(help.stdout, /--path cannot be combined with --target both or an explicit --scope/);
   assert.equal(version.status, 0, version.stderr);
-  assert.equal(version.stdout.trim(), "0.3.0");
+  assert.equal(version.stdout.trim(), packageVersion);
 });
 
 test("rejects invalid values and repeated custom paths", () => {

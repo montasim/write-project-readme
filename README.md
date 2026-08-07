@@ -88,7 +88,7 @@ npx --yes --package=github:montasim/write-project-readme write-project-readme --
 npx --yes --package=github:montasim/write-project-readme write-project-readme --target both
 ```
 
-The GitHub form follows the repository's default branch. Prefer `@latest` for normal installation because it resolves an immutable published package instead of a moving source branch.
+The GitHub form follows the repository's default branch. Prefer `@latest` for normal installation because it selects a published, immutable package version at execution time instead of a moving source branch.
 
 ### Destinations and scope
 
@@ -137,7 +137,7 @@ npx --yes --package=write-project-readme@latest write-project-readme --target bo
 `--path` selects one exact custom skills root; the installer still creates its `write-project-readme` child:
 
 ```sh
-npx --yes --package=write-project-readme@latest write-project-readme --target claude --path /absolute/path/to/skills
+npx --yes --package=write-project-readme@latest write-project-readme --target claude --path "$PWD/.agent-skills"
 ```
 
 Because a custom path already fixes one root, `--path` is incompatible with `--target both` and with any explicit `--scope`, including an explicit `--scope user`.
@@ -150,7 +150,7 @@ The installer preserves every existing `write-project-readme` destination unless
 npx --yes --package=write-project-readme@latest write-project-readme --target codex --force
 ```
 
-The packaged skill is staged before the current installation moves. Symlinks and non-directory targets are rejected, as are paths that overlap the packaged source or another selected target.
+`--force` replaces the complete current skill directory; it does not preserve manual edits inside that directory. The packaged skill is staged before the current installation moves. Symlinks and non-directory targets are rejected, as are paths that overlap the packaged source or another selected target.
 
 ### Migrate legacy installations
 
@@ -161,6 +161,9 @@ Legacy discovery never causes an implicit move or deletion. Recognized legacy in
 - An explicit `--path` is isolated: migration checks only `readme-craft` and `craft-project-readme` beneath that exact custom root and does not scan standard or legacy roots.
 
 A normal install refuses before writing when it finds a recognized legacy installation, even if `--force` is present. Preview migration sources, backups, and destinations first:
+
+> [!WARNING]
+> Migration replaces recognized legacy directories with a fresh packaged skill. It does not merge or retain custom files from the old directory after a successful transaction. Back up intentional local changes before continuing.
 
 ```sh
 npx --yes --package=write-project-readme@latest write-project-readme --target codex --migrate --dry-run
@@ -310,7 +313,7 @@ Clone and verify the package:
 ```sh
 git clone https://github.com/montasim/write-project-readme.git
 cd write-project-readme
-npm install
+npm ci
 npm test
 npm run pack:check
 ```
@@ -326,16 +329,37 @@ When Codex's `skill-creator` utilities are installed, also validate the bundled 
 python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/write-project-readme
 ```
 
-GitHub Actions runs the npm test and package checks on pushes to `main` and pull requests using Node.js 22.
+GitHub Actions runs the npm test and package checks on pushes to `main` and pull requests using both the minimum supported Node.js 18 and current Node.js 24.
+
+### Automated releases
+
+Stable releases are tag-driven. Prepare a release by updating `package.json` and `package-lock.json` together, running the checks above, and merging the version change into `main`. Then create and push the matching tag:
+
+```sh
+npm version patch --no-git-tag-version
+npm test
+npm run pack:check
+```
+
+Use `minor`, `major`, or an explicit stable version instead of `patch` when appropriate. After the version change is reviewed and merged into `main`:
+
+```sh
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+The [publish workflow](.github/workflows/publish.yml) accepts stable `vX.Y.Z` tags only. It verifies that the manifest and lockfile versions match the tag and that the tagged commit belongs to `main`; reruns the tests and package inspection on Node.js 24; publishes to npm through a workflow-specific trusted publisher with provenance; smoke-tests the documented Codex, Claude Code, both-target, and `pnpx` installation paths; and creates the GitHub Release only after those checks pass.
+
+The npm trusted publisher is bound to `montasim/write-project-readme` and the `publish.yml` workflow. The workflow uses short-lived OpenID Connect credentials and does not require an `NPM_TOKEN` repository secret.
 
 ## Status and limitations
 
-- Version 0.3.0 is the first installer release supporting both Codex and Claude Code.
+- The current stable installer supports both Codex and Claude Code.
 - The npm `latest` channel resolves the current stable release; the GitHub default-branch form is a source-based fallback.
 - The installer configures local filesystem skill roots for Codex and Claude Code. Claude.ai and Anthropic API use require separate skill uploads.
 - Natural-language discovery on both hosts comes from the shared `SKILL.md` description; `$write-project-readme` and `/write-project-readme` are the deterministic explicit forms.
 - Automatic detection is a destination-selection heuristic, not caller identity. Machines with zero or two detected hosts require an explicit target.
-- `CODEX_HOME/skills`, `~/.codex/skills`, and project `.codex/skills` are legacy migration sources, not v0.3.0 Codex destinations.
+- `CODEX_HOME/skills`, `~/.codex/skills`, and project `.codex/skills` are legacy migration sources, not current Codex destinations.
 - Multi-target installation is transactional with attempted cross-target rollback, but an interrupted or failed rollback can leave reported transaction directories requiring manual recovery.
 - The skill writes only the root project README. It deliberately does not fulfill audit-only or repository-marketing requests.
 - Repository evidence can be incomplete or stale. Blocking unknowns may require maintainer input; relevant non-blocking optional values remain visible as configuration-required markers.

@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "test": "node --test",
-    "pack:check": "npm pack --dry-run"
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm test && npm run pack:check"
   },
   "engines": {
     "node": ">=18"
@@ -40,6 +41,7 @@
   },
   "homepage": "https://github.com/montasim/write-project-readme#readme",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

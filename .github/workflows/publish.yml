@@ -1,0 +1,143 @@
+name: Publish and release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Publish npm package
+    if: github.repository == 'montasim/write-project-readme'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Verify release metadata
+        id: release
+        run: node scripts/verify-release.mjs
+      - name: Verify the tag belongs to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          tag_commit="$(git rev-list -n 1 "$GITHUB_REF_NAME")"
+          git merge-base --is-ancestor "$tag_commit" origin/main
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Run tests
+        run: npm test
+      - name: Inspect the package archive
+        run: npm run pack:check
+      - name: Publish to npm with trusted publishing
+        run: npm publish --access public
+
+  verify-package:
+    name: Verify published package
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      RELEASE_VERSION: ${{ needs.publish.outputs.version }}
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.7.0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Wait for npm registry propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            published_version="$(npm view --prefer-online "write-project-readme@$RELEASE_VERSION" version 2>/dev/null || true)"
+            latest_version="$(npm view --prefer-online write-project-readme dist-tags.latest 2>/dev/null || true)"
+            if [[ "$published_version" == "$RELEASE_VERSION" && "$latest_version" == "$RELEASE_VERSION" ]]; then
+              exit 0
+            fi
+            if [[ "$attempt" == "10" ]]; then
+              echo "write-project-readme@$RELEASE_VERSION did not become the npm latest release" >&2
+              exit 1
+            fi
+            sleep 6
+          done
+      - name: Smoke-test documented installers
+        shell: bash
+        run: |
+          set -euo pipefail
+          smoke_root="$RUNNER_TEMP/write-project-readme-smoke"
+          mkdir -p "$smoke_root/both"
+
+          npx --yes --package=write-project-readme@latest write-project-readme --target codex --path "$smoke_root/codex"
+          npx --yes --package=write-project-readme@latest write-project-readme --target claude --path "$smoke_root/claude"
+          (
+            cd "$smoke_root/both"
+            npx --yes --package=write-project-readme@latest write-project-readme --target both --scope project
+          )
+          pnpx write-project-readme@latest --target codex --path "$smoke_root/pnpx"
+
+          diff -qr skills/write-project-readme "$smoke_root/codex/write-project-readme"
+          diff -qr skills/write-project-readme "$smoke_root/claude/write-project-readme"
+          diff -qr skills/write-project-readme "$smoke_root/both/.agents/skills/write-project-readme"
+          diff -qr skills/write-project-readme "$smoke_root/both/.claude/skills/write-project-readme"
+          diff -qr skills/write-project-readme "$smoke_root/pnpx/write-project-readme"
+          node "$smoke_root/codex/write-project-readme/scripts/check-readme.mjs" .
+
+  github-release:
+    name: Create GitHub release
+    needs:
+      - publish
+      - verify-package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Create the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release $GITHUB_REF_NAME already exists."
+            exit 0
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Write Project README $GITHUB_REF_NAME" \
+            --generate-notes \
+            --latest

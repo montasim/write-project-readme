@@ -143,7 +143,13 @@ Before finishing:
 2. Confirm all relative targets exist with exact filename case.
 3. Run safe, relevant project checks when practical; do not perform deployments, releases, destructive commands, or external writes merely to verify documentation.
 4. Read the complete draft top to bottom against both bundled references and every applicable P0 gate.
-5. Resolve the absolute installed skill directory that contains this loaded `SKILL.md`, then run its bundled deterministic checker at `scripts/check-readme.mjs`, passing the absolute project root as the first argument. Use the host agent's skill-resource path resolution; do not assume a host-specific installation directory or execute an unresolved placeholder path.
+5. Confirm Node.js 18 or newer is available. Resolve the absolute installed skill directory that contains this loaded `SKILL.md`, then run its bundled deterministic checker with `node`, passing the absolute project root as the first argument:
+
+   ```sh
+   node /absolute/path/to/installed-skill/scripts/check-readme.mjs /absolute/path/to/project
+   ```
+
+   Resolve both placeholders to concrete absolute paths before execution. Use the host agent's skill-resource path resolution; do not assume a host-specific installation directory. If the required Node.js runtime is unavailable, continue the manual evidence and acceptance-gate review and report that the deterministic checker could not run.
 
 Use `--json` when machine-readable diagnostics help. Exit code `0` is clean, `1` means validation or configuration-required findings, and `2` means invocation or internal failure. The checker does not prove factual accuracy; resolve its diagnostics and still perform the evidence review.
 

@@ -67,6 +67,10 @@ test("portable supporting resources exist and the checker is discoverable", () =
     assert.equal(existsSync(join(skillRoot, resource)), true, `${resource} is missing`);
     assert.match(body, new RegExp(resource.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+
+  assert.match(body, /Node\.js 18 or newer/i);
+  assert.match(body, /run its bundled deterministic checker with `node`/i);
+  assert.match(body, /report that the deterministic checker could not run/i);
 });
 
 test("OpenAI UI metadata stays packaged outside the portable behavior contract", () => {

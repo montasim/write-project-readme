@@ -9,10 +9,10 @@
 
 Write Project README gives coding agents a project-type-aware workflow for producing a complete README without turning guessed metadata or publisher defaults into project facts. The same `SKILL.md`, quality references, and deterministic checker are installed for both supported hosts. The workflow inspects manifests, code, public interfaces, tests, CI, release and deployment files, and repository-native governance metadata; then it writes one artifact only: the target repository's root `README.md`.
 
-> **Release preparation:** This document describes planned v0.3.0 behavior. The pinned `#v0.3.0` commands become usable when that GitHub tag is published.
+> **Distribution status:** `write-project-readme` is not published to npm yet. After its first publication, `@latest` will track the current stable release. Until then, use the GitHub source fallback in the installation section.
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex
+npx --yes --package=write-project-readme@latest write-project-readme --target codex
 ```
 
 Restart the selected host after installation, then invoke the skill with that host's syntax:
@@ -57,28 +57,38 @@ The local installer supports Codex and Claude Code. Claude.ai and Anthropic API 
 - Node.js 18 or newer for the dependency-free installer and checker
 - Codex, Claude Code, or both, with filesystem-backed skill support
 
-Install the pinned GitHub release for the host you want to use:
+After the first npm publication, install the current stable release for the host you want to use:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target claude
+npx --yes --package=write-project-readme@latest write-project-readme --target codex
+npx --yes --package=write-project-readme@latest write-project-readme --target claude
 ```
 
 Install for both local hosts in one transaction:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both
+npx --yes --package=write-project-readme@latest write-project-readme --target both
 ```
 
 The equivalent `pnpx` form accepts the same installer options:
 
 ```sh
-pnpx github:montasim/write-project-readme#v0.3.0 --target codex
+pnpx write-project-readme@latest --target codex
 ```
 
 Restart each selected host or begin a new session after installation so its skill catalog refreshes.
 
-The unscoped npm package is not part of the currently verified distribution. After it is published, the shorter commands will be `npx write-project-readme` and `pnpx write-project-readme`; until then, use the pinned GitHub form above.
+[`latest`](https://docs.npmjs.com/cli/dist-tag/) is npm's stable distribution tag and is updated by a normal stable publication. It avoids hard-coding a release number while still resolving a published package version. It applies to registry package names, not GitHub repository specifications.
+
+Until the first npm publication, install the current default branch directly from GitHub:
+
+```sh
+npx --yes --package=github:montasim/write-project-readme write-project-readme --target codex
+npx --yes --package=github:montasim/write-project-readme write-project-readme --target claude
+npx --yes --package=github:montasim/write-project-readme write-project-readme --target both
+```
+
+The GitHub form follows the repository's default branch. Prefer `@latest` after registry publication because it resolves an immutable published package instead of a moving source branch.
 
 ### Destinations and scope
 
@@ -94,8 +104,8 @@ The unscoped npm package is not part of the currently verified distribution. Aft
 For project scope, `<repo>` is the Git worktree root when available and the current directory otherwise. For example:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --scope project
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both --scope project
+npx --yes --package=write-project-readme@latest write-project-readme --target codex --scope project
+npx --yes --package=write-project-readme@latest write-project-readme --target both --scope project
 ```
 
 ### Automatic target detection
@@ -103,7 +113,7 @@ npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-re
 `--target` accepts `auto`, `codex`, `claude`, or `both` and defaults to `auto`. With no explicit target, the installer proceeds only when it detects exactly one supported host:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme
+npx --yes --package=write-project-readme@latest write-project-readme
 ```
 
 Detection checks environment variables, known agent directories, and the executable names on `PATH`. It never runs an agent command. In particular:
@@ -121,13 +131,13 @@ Detection chooses an installation destination; it is not caller identity, authen
 Preview the full plan without writing:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target both --dry-run
+npx --yes --package=write-project-readme@latest write-project-readme --target both --dry-run
 ```
 
 `--path` selects one exact custom skills root; the installer still creates its `write-project-readme` child:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target claude --path /absolute/path/to/skills
+npx --yes --package=write-project-readme@latest write-project-readme --target claude --path /absolute/path/to/skills
 ```
 
 Because a custom path already fixes one root, `--path` is incompatible with `--target both` and with any explicit `--scope`, including an explicit `--scope user`.
@@ -137,7 +147,7 @@ Because a custom path already fixes one root, `--path` is incompatible with `--t
 The installer preserves every existing `write-project-readme` destination unless replacement is explicit:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --force
+npx --yes --package=write-project-readme@latest write-project-readme --target codex --force
 ```
 
 The packaged skill is staged before the current installation moves. Symlinks and non-directory targets are rejected, as are paths that overlap the packaged source or another selected target.
@@ -153,19 +163,19 @@ Legacy discovery never causes an implicit move or deletion. Recognized legacy in
 A normal install refuses before writing when it finds a recognized legacy installation, even if `--force` is present. Preview migration sources, backups, and destinations first:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --migrate --dry-run
+npx --yes --package=write-project-readme@latest write-project-readme --target codex --migrate --dry-run
 ```
 
 Then migrate:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --migrate
+npx --yes --package=write-project-readme@latest write-project-readme --target codex --migrate
 ```
 
 If a current destination also exists, authorize its replacement as part of the migration:
 
 ```sh
-npx --yes --package=github:montasim/write-project-readme#v0.3.0 write-project-readme --target codex --force --migrate
+npx --yes --package=write-project-readme@latest write-project-readme --target codex --force --migrate
 ```
 
 With `--target both --migrate`, one host may migrate a legacy installation while the other receives a fresh install. At least one selected host must have a recognized legacy installation or `--migrate` refuses.
@@ -320,8 +330,8 @@ GitHub Actions runs the npm test and package checks on pushes to `main` and pull
 
 ## Status and limitations
 
-- Version 0.3.0 is being prepared as the first installer release supporting both Codex and Claude Code; its pinned commands require the `v0.3.0` GitHub tag to be published.
-- The GitHub release is the verified installation source. Publishing the unscoped npm package still requires maintainer authentication.
+- Version 0.3.0 is being prepared as the first installer release supporting both Codex and Claude Code.
+- The unscoped npm package is not published yet. After its first stable publication, `write-project-readme@latest` will resolve the current stable release; until then, use the GitHub default-branch fallback.
 - The installer configures local filesystem skill roots for Codex and Claude Code. Claude.ai and Anthropic API use require separate skill uploads.
 - Natural-language discovery on both hosts comes from the shared `SKILL.md` description; `$write-project-readme` and `/write-project-readme` are the deterministic explicit forms.
 - Automatic detection is a destination-selection heuristic, not caller identity. Machines with zero or two detected hosts require an explicit target.
